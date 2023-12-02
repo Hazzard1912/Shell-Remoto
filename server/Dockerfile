@@ -11,8 +11,8 @@ COPY server.c readstring.c readstring.h /server/
 RUN gcc -c readstring.c
 RUN gcc -o server server.c readstring.o
 
-# Expone el puerto 12345
-EXPOSE 12345
+# Expone el puerto 1234
+EXPOSE 1234
 
 # Ejecuta el servidor
 CMD ["./server"]
