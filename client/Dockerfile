@@ -10,6 +10,3 @@ COPY client.c readstring.c readstring.h /client/
 # Compila el archivo client.c
 RUN gcc -c readstring.c
 RUN gcc -o client client.c readstring.o
-
-# Ejecuta el cliente
-CMD [ "./client" ]

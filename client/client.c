@@ -3,35 +3,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #include <unistd.h>
 #include "readstring.h"
 
 #define MAX 100
 #define MAX_OUTPUT 4096
 
-int main(void)
+int main()
 {
 
+  struct addrinfo hints, *res;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  
+
+  if (getaddrinfo("server", "3000", &hints, &res) != 0)
+  {
+    perror("getaddrinfo");
+    exit(EXIT_FAILURE);
+  }
+
   // Creamos el socket
-  int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+  int client_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
   if (client_socket == -1)
   {
     perror("Error al crear el socket");
     exit(EXIT_FAILURE);
   }
 
-  // Configuramos el socket
-  struct sockaddr_in server_addr;
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(1234);
-  server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
   // Conectamos al servidor
-  int connect_result = connect(client_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
-  if (connect_result == -1)
+  if (connect(client_socket, res->ai_addr, res->ai_addrlen) == -1)
   {
     perror("Error al conectar");
-    close(client_socket);
     exit(EXIT_FAILURE);
   }
 
@@ -128,6 +134,7 @@ int main(void)
   }
 
   close(client_socket);
+  freeaddrinfo(res);
 
   return 0;
 }
